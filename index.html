@@ -42,23 +42,39 @@
             margin: 4px 6px;
 
         }
+
+        #error-box {
+            color: red;
+            font-size: 15px;
+            margin: 10px 0;
+        }
+
+        form {
+            display: flex;
+
+            align-items: center;
+        }
     </style>
 </head>
 
 <body>
 
     <h2>Todo Javascript</h2>
+    <div id="error-box"></div>
+    <form id="add-task-form">
+        <textarea rows="3" cols="40" id="task-add-input" placeholder="Add a task" type="text"
+            name="item"></textarea><button type="submit">Add
+            Item</button>
+    </form>
 
-    <input placeholder="Add a task" type="text" name="item"><button>Add Item</button>
-
-    <table style="  border-collapse: collapse;">
+    <table id="tasks-table" style="  border-collapse: collapse;">
         <thead>
             <tr>
                 <th>Task</th>
                 <th>Status</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="tasks-table-body">
             <tr>
                 <td>To complete js course</td>
                 <td> Completed</td>
@@ -69,6 +85,65 @@
             </tr>
         </tbody>
     </table>
+
+    <script>
+        const taskInput = document.getElementById("task-add-input");
+        const taskForm = document.getElementById("add-task-form");
+        const tasksTableBody = document.getElementById("tasks-table-body");
+        const errorBox = document.getElementById("error-box");
+
+        const showError = (error) => {
+            errorBox.innerText = error;
+
+            setTimeout(function () {
+                errorBox.style.display = "none"
+
+            }, 1500)
+        }
+
+
+        var allTasksArray = [];
+
+        taskForm.addEventListener('submit', function (e) {
+            e.preventDefault()
+            const newTask = taskInput.value
+            if (newTask.length > 0) {
+
+                const newTaskObj = {
+                    name: newTask,
+                    status: 0
+                }
+
+                allTasksArray.push(newTaskObj);
+                showAllTasks()
+
+            } else {
+                showError("Task can't be empty :(")
+            }
+
+        })
+
+
+
+        const showAllTasks = () => {
+
+            let rowsHTML = "";
+
+            allTasksArray.forEach((t) => {
+
+                rowsHTML += `
+                 <tr>
+                   <td>${t.name}</td>
+                   <td> ${t.status == 0 ? "  <button>Mark Complete</button>" : "Completed"}</td>
+                 </tr>
+                
+                `;
+
+            })
+            tasksTableBody.innerHTML = rowsHTML;
+
+        }
+    </script>
 
 </body>
 
