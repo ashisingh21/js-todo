@@ -110,6 +110,7 @@
             if (newTask.length > 0) {
 
                 const newTaskObj = {
+                    id: Date.now(),
                     name: newTask,
                     status: 0
                 }
@@ -134,7 +135,7 @@
                 rowsHTML += `
                  <tr>
                    <td>${t.name}</td>
-                   <td> ${t.status == 0 ? "  <button>Mark Complete</button>" : "Completed"}</td>
+                   <td> ${t.status == 0 ? `<button class="create-task-btn" data-id=${t.id}>Mark Complete</button>` : "Completed"}</td>
                  </tr>
                 
                 `;
@@ -143,6 +144,19 @@
             tasksTableBody.innerHTML = rowsHTML;
 
         }
+
+
+        tasksTableBody.addEventListener('click', function (event) {
+            if (event.target.classList.contains('create-task-btn')) {
+                const taskId = event.target.dataset.id;
+                const task = allTasksArray.find(t => t.id == taskId)
+                if (task) {
+                    task.status = 1;
+                    showAllTasks();
+                }
+            }
+        })
+
     </script>
 
 </body>
