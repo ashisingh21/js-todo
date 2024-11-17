@@ -91,10 +91,8 @@
     <table id="tasks-table" style="  border-collapse: collapse;">
         <thead>
             <tr>
-                <th>Date</th>
                 <th>Task</th>
                 <th>Status</th>
-         
             </tr>
         </thead>
         <tbody id="tasks-table-body">
@@ -125,20 +123,7 @@
         }
 
 
-  
-
-        const getAllTasksFromLocalStorage = ()=>{
-           return localStorage.getItem("allTasks") ? JSON.parse(localStorage.getItem("allTasks")) : [];
-        }
-
-        const setAllTasksInLocalStorage = (allTasks)=>{
-           const jsonAllTasks = JSON.stringify(allTasks)
-            localStorage.setItem("allTasks",jsonAllTasks)
-
-        }
-
-
-
+        var allTasksArray = [];
 
         taskForm.addEventListener('submit', function (e) {
             e.preventDefault()
@@ -148,14 +133,10 @@
                 const newTaskObj = {
                     id: Date.now(),
                     name: newTask,
-                    status: 0,
-                    date: new Date().toLocaleString()
+                    status: 0
                 }
 
-
-                const allTasks = getAllTasksFromLocalStorage()
-                allTasks.push(newTaskObj);
-                setAllTasksInLocalStorage(allTasks);
+                allTasksArray.push(newTaskObj);
                 showAllTasks()
 
             } else {
@@ -166,25 +147,22 @@
 
 
 
-        const showAllTasks = (filteredTasks) => {
+        const showAllTasks = (taskArray = allTasksArray) => {
 
-
-            const allTasks = filteredTasks ? filteredTasks : getAllTasksFromLocalStorage()
             let rowsHTML = "";
 
-            allTasks.forEach((t) => {
+            taskArray.forEach((t) => {
 
-                rowsHTML += `
-                 <tr>
-                    <td>${t.date}</td>
-                   <td>${t.name}</td>
-                   <td> ${t.status == 0 ? `<button class="create-task-btn" data-id=${t.id}>Mark Complete</button>` : "Completed"}</td>
-                 </tr>
+                // rowsHTML += `
+                //  <tr>
+                //    <td>${t.name}</td>
+                //    <td> ${t.status == 0 ? `<button class="create-task-btn" data-id=${t.id}>Mark Complete</button>` : "Completed"}</td>
+                //  </tr>
                 
-                `;
+                // `;
 
 
-                // rowsHTML += "<tr><td>" + t.name+ "</td><td>" + (t.status == 0 ? "<button class='create-task-btn' data-id=" + t.id +">Mark Complete</button>" : "Completed") + "</td></tr>";
+                rowsHTML += "<tr><td>" + t.name+ "</td><td>" + (t.status == 0 ? "<button class='create-task-btn' data-id=" + t.id +">Mark Complete</button>" : "Completed") + "</td></tr>";
 
             })
             tasksTableBody.innerHTML = rowsHTML;
@@ -197,12 +175,9 @@
         tasksTableBody.addEventListener('click', function (event) {
             if (event.target.classList.contains('create-task-btn')) {
                 const taskId = event.target.dataset.id;
-
-                const allTasks = getAllTasksFromLocalStorage()
-                const task = allTasks.find(t => t.id == taskId)
+                const task = allTasksArray.find(t => t.id == taskId)
                 if (task) {
                     task.status = 1;
-                     setAllTasksInLocalStorage(allTasks)
                     showAllTasks();
 
                 }
@@ -214,8 +189,7 @@
 
         const makeStatusArray = () => {
 
-            const allTasks = getAllTasksFromLocalStorage()
-            const allStatuses = allTasks.map(t => {
+            const allStatuses = allTasksArray.map(t => {
                 return t.status == 0 ? 'Pending' : 'Completed';
             })
 
@@ -234,9 +208,7 @@
 
         const filterTasks = () => {
 
-            const allTasks = getAllTasksFromLocalStorage()
-
-            let filteredTasks = [...allTasks];
+            let filteredTasks = [...allTasksArray];
 
             if (statusDropdown.value !== 'null') {
 
@@ -260,8 +232,7 @@
         }
 
         const countAllTasks = () => {
-            const allTasks = getAllTasksFromLocalStorage()
-            const taskCount = allTasks.reduce((a, t) => {
+            const taskCount = allTasksArray.reduce((a, t) => {
                 return a + 1;
             }, 0);
 
@@ -280,7 +251,6 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             makeStatusArray()
-            showAllTasks()
 
         })
 
