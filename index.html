@@ -68,6 +68,9 @@
             color: black;
 
         }
+        .sort{
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -91,9 +94,9 @@
     <table id="tasks-table" style="  border-collapse: collapse;">
         <thead>
             <tr>
-                <th>Date</th>
-                <th>Task</th>
-                <th>Status</th>
+                <th data-sort="date"  class="sort">Date</th>
+                <th data-sort="name" class="sort">Task</th>
+                <th data-sort="status" class="sort">Status</th>
          
             </tr>
         </thead>
@@ -276,6 +279,74 @@
         statusDropdown.addEventListener('change', function () {
             filterTasks()
         })
+
+
+
+        let sortBtns = document.getElementsByClassName("sort")
+
+
+        let isAscending = true;
+
+        Array.from(sortBtns).forEach((btn)=>{
+
+          btn.addEventListener('click',function(e){
+            
+            const sortType = e.target.dataset.sort;
+
+            const allTasks = getAllTasksFromLocalStorage();
+
+            if (sortType == "date"){
+                allTasks.sort((a,b)=>{
+
+                    if(isAscending){
+                      return a.id -  b.id;
+                    } else {
+                        return b.id - a.id;
+                    }
+                })
+                isAscending = !isAscending;
+
+                setAllTasksInLocalStorage(allTasks);
+                showAllTasks()
+            }
+
+            if (sortType == "name"){
+                allTasks.sort((a,b)=>{
+
+                  if(isAscending){
+                    return a.name.localeCompare(b.name);
+                  } else {
+                    return b.name.localeCompare(a.name);
+                  }
+                })
+                  isAscending = !isAscending;
+                  
+                  setAllTasksInLocalStorage(allTasks);
+                  showAllTasks()
+                
+            }
+
+            if (sortType == "status"){
+                allTasks.sort((a,b)=>{
+
+                if(isAscending){
+                  return a.status - b.status;
+                } else {
+                    return b.status - a.status;
+                }
+                })
+                isAscending = !isAscending;
+                
+                setAllTasksInLocalStorage(allTasks);
+                showAllTasks()
+                
+            }
+
+
+          })
+
+
+        })   
 
 
         document.addEventListener('DOMContentLoaded', function () {
