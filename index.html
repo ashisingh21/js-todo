@@ -71,12 +71,22 @@
         .sort{
             cursor: pointer;
         }
+        .quote-wrapper{
+            display: flex;
+            padding:6px;
+            border: 1px solid #eee;
+            width: 600px;
+        }
+        .quote-wrapper #quote{
+         flex:1;
+        }
     </style>
 </head>
 
 <body>
 
-    <h2>Todo Javascript</h2>
+    <h2>Todo Javascript</h2> 
+    <div class="quote-wrapper"><p id="quote">random text</p><button id="create-new-quote">Create new quote</button></div>
     <div id="error-box"></div>
     <form id="add-task-form">
         <textarea rows="3" cols="40" id="task-add-input" placeholder="Add a task" type="text"
@@ -117,6 +127,9 @@
         const taskForm = document.getElementById("add-task-form");
         const tasksTableBody = document.getElementById("tasks-table-body");
         const errorBox = document.getElementById("error-box");
+        const quote = document.getElementById("quote");
+
+        const createQuoteBtn = document.getElementById("create-new-quote");
 
         const showError = (error) => {
             errorBox.innerText = error;
@@ -348,12 +361,38 @@
 
         })   
 
+        
+        async function getData() {
+             const url = "https://ron-swanson-quotes.herokuapp.com/v2/quotes";
+             try {
+               const response = await fetch(url);
+               if (!response.ok) {
+                 throw new Error(`Response status: ${response.status}`);
+               }
+           
+               const quoteText = await response.json();
+           
+               quote.innerHTML = quoteText;
+
+
+             } catch (error) {
+               console.error(error.message);
+             }
+        }
+
+        createQuoteBtn.addEventListener('click',getData)
+
 
         document.addEventListener('DOMContentLoaded', function () {
             makeStatusArray()
             showAllTasks()
+            getData()
 
         })
+
+
+
+     
 
     </script>
 
