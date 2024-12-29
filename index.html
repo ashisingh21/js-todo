@@ -159,7 +159,85 @@ body[data-theme="dark"], body[data-theme="dark"] textarea{
     color:white;
 }
 
+#add-task-form{
+    padding:15px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    flex-direction: column;
+    border-radius: 15px;
+    width: 400px;
+    gap:.8rem;
 
+}
+
+#add-task-form > div{
+display: flex;
+gap:.3rem;
+flex-direction: column;
+width: 100%;
+
+
+}
+
+
+#add-task-form > button{
+margin-top:10px;
+width: 100%;
+
+}
+
+.low{
+    color:rgb(203, 138, 203);
+    font-weight: 500;
+
+}
+.medium{
+    color:rgb(200, 198, 70);
+    font-weight: 500;
+
+}
+.high{
+    color:rgb(213, 2, 6);
+    font-weight: 500;
+
+}
+
+.quote-and-progress-container{
+    display: flex;
+    gap: 1rem;
+
+}
+
+.progress-container { 
+    
+            background-color: rgb(192, 192, 192); 
+            width: 80%; 
+            border-radius: 15px; 
+        } 
+  
+        .skill { 
+            background-color: rgb(116, 194, 92); 
+            color: white; 
+            padding: 1%; 
+            text-align: right; 
+            font-size: 10px; 
+            border-radius: 15px; 
+        } 
+  
+        #high { 
+      
+      background-color:rgb(213, 2, 6);
+        } 
+  
+        #medium { 
+            background-color: rgb(200, 198, 70);
+        } 
+        #low { 
+            background-color: rgb(203, 138, 203);
+        } 
+
+        .progress-wrapper{
+            flex:1;
+        }
     </style>
 </head>
 
@@ -175,11 +253,54 @@ body[data-theme="dark"], body[data-theme="dark"] textarea{
         </div>
     </div>
 
-    <div class="quote-wrapper"><p id="quote">random text</p><button id="create-new-quote">Create new quote</button></div>
+    
+
+
+    <div class="quote-and-progress-container">
+
+        <div class="quote-wrapper"><p id="quote"></p><button id="create-new-quote">Create new quote</button></div>
+        <div class="progress-wrapper">
+            <p>High</p> 
+            <div class="progress-container"> 
+                <div class="skill" id="high"></div> 
+            </div> 
+          
+            <p>Medium</p> 
+            <div class="progress-container"> 
+                <div class="skill" id="medium"></div> 
+            </div> 
+
+            <p>Low</p> 
+            <div class="progress-container"> 
+                <div class="skill" id="low"></div> 
+            </div> 
+        </div>
+    </div>
+
+
     <div id="error-box"></div>
     <form id="add-task-form">
-        <textarea rows="3" cols="40" id="task-add-input" placeholder="Add a task" type="text"
-            name="item"></textarea><button type="submit">Add
+
+        <div>
+            <label>Task Description</label>
+            <textarea rows="3" cols="40" id="task-add-input" placeholder="Add a task" type="text"
+            name="item"></textarea>
+            </div>
+        <div>
+            <label>Complete by</label>
+            <input type="date" id="complete-by">
+        </div>
+
+        <div>
+            <label>Priority</label>
+            <select id="priority">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+        </div>
+        
+        <button type="submit">Add
             Item</button>
     </form>
 
@@ -195,8 +316,10 @@ body[data-theme="dark"], body[data-theme="dark"] textarea{
             <tr>
                 <th data-sort="date"  class="sort">Date</th>
                 <th data-sort="name" class="sort">Task</th>
+                <th data-sort="complete-by" class="sort">Complete by</th>
+                <th data-sort="priority" class="sort">Priority</th>
                 <th data-sort="status" class="sort">Status</th>
-                <th data-sort="status" class="sort">Actions</th>
+                <th class="sort">Actions</th>
          
             </tr>
         </thead>
@@ -214,11 +337,17 @@ body[data-theme="dark"], body[data-theme="dark"] textarea{
 
     <script>
         const taskInput = document.getElementById("task-add-input");
+        const taskInputCompleteBy = document.getElementById("complete-by");
+        const taskInputPriority = document.getElementById("priority");
         const taskForm = document.getElementById("add-task-form");
         const tasksTableBody = document.getElementById("tasks-table-body");
         const errorBox = document.getElementById("error-box");
         const quote = document.getElementById("quote");
         const mode = document.getElementById("mode")
+
+        const highTaskProgressBar = document.getElementById("high");
+        const mediumTaskProgressBar = document.getElementById("medium");
+        const lowTaskProgressBar = document.getElementById("low");
 
         const createQuoteBtn = document.getElementById("create-new-quote");
 
@@ -256,18 +385,39 @@ body[data-theme="dark"], body[data-theme="dark"] textarea{
         }
 
 
+const handleProgressBars = ()=>{
+   const allTasks =  getAllTasksFromLocalStorage();
 
+   const allTasksCount = allTasks.length;
+   const highPTasks = allTasks.filter(t=> t.priority == 'high').length ;
+
+   const mediumPTasks = allTasks.filter(t=> t.priority == 'medium').length;
+   const lowPTasks = allTasks.filter(t=> t.priority == 'low').length;
+
+   highTaskProgressBar.style.width = (highPTasks/allTasksCount)*100 + "%";
+   mediumTaskProgressBar.style.width = (mediumPTasks/allTasksCount)*100 + "%";
+   lowTaskProgressBar.style.width = (lowPTasks/allTasksCount)*100 + "%";
+
+
+
+
+}
 
         taskForm.addEventListener('submit', function (e) {
             e.preventDefault()
             const newTask = taskInput.value
+
+            const newTaskCompleteBy = new Date(taskInputCompleteBy.value).toLocaleDateString("en-GB");
+            const newTaskPriority = taskInputPriority.value
             if (newTask.length > 0) {
 
                 const newTaskObj = {
                     id: Date.now(),
                     name: newTask,
                     status: 0,
-                    date: new Date().toLocaleString()
+                    completeBy:newTaskCompleteBy ,
+                    priority: newTaskPriority,
+                    date: new Date().toLocaleDateString("en-GB")
                 }
 
 
@@ -296,8 +446,11 @@ body[data-theme="dark"], body[data-theme="dark"] textarea{
                  <tr>
                     <td>${t.date}</td>
                    <td>${t.name}</td>
+                            <td>${t.completeBy}</td>
+                   <td class=${t.priority}>${t.priority}</td>
                    <td> ${t.status == 0 ? `<button class="create-task-btn" data-id=${t.id}>Mark Complete</button>` : "Completed"}</td>
                     <td><button class="delete-task-btn" data-id=${t.id}>Delete</button></td>
+               
                  </tr>
                 
                 `;
@@ -505,6 +658,7 @@ body[data-theme="dark"], body[data-theme="dark"] textarea{
             makeStatusArray()
             showAllTasks()
             getData()
+            handleProgressBars()
 
         })
 
